@@ -3,40 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login / Register - Cosmic Runner</title>
-    <link rel="stylesheet" href="css/auth.css" />
+    <title>CosmicKeyCaper</title>
+    <link rel="stylesheet" href="./frontend/css/game.css" />
   </head>
   <body>
-    <div class="auth-container">
-      <h1>Cosmic Runner</h1>
-      <div class="tabs">
-        <button id="login-tab" class="active">Login</button>
-        <button id="register-tab">Register</button>
-      </div>
-      <form id="login-form" class="auth-form">
-        <input type="email" id="login-email" placeholder="Email" required />
-        <input
-          type="password"
-          id="login-password"
-          placeholder="Password"
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
-      <form id="register-form" class="auth-form" style="display: none">
-        <input type="email" id="register-email" placeholder="Email" required />
-        <input
-          type="password"
-          id="register-password"
-          placeholder="Password"
-          required
-        />
-        <button type="submit">Register</button>
-      </form>
-      <p id="auth-message"></p>
-    </div>
-    <script src="frontend/api.js"></script>
-    <script src="frontend/menu.js"></script>
-    <!-- Load menu.js only in auth.html -->
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script src="./frontend/js/game.js"></script>
   </body>
 </html>
