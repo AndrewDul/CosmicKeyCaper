@@ -1,0 +1,19 @@
+/* Canvas styling */
+canvas {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid white;
+  background: #000;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Body styling */
+body {
+  margin: 0;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
