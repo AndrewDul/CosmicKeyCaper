@@ -1,0 +1,28 @@
+#hud {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  border-radius: 10px;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 150px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+.stat span {
+  font-weight: bold;
+  color: yellow;
+}

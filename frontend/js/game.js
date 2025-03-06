@@ -12,11 +12,10 @@ const level1 = new Level1(canvas, ctx);
 const player = new Player(canvas, ctx);
 const enemyManager = new EnemyManager(canvas, ctx, level1);
 
-// Obsługa klawiszy
 window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") player.moveLeft();
   if (e.key === "ArrowRight") player.moveRight();
-  if (e.key === " ") player.jump(); // Skok po spacji
+  if (e.key === " ") player.jump();
 });
 
 function gameLoop() {
@@ -25,7 +24,7 @@ function gameLoop() {
   level1.update();
   level1.draw();
 
-  enemyManager.update();
+  enemyManager.update(player); // Sprawdzamy kolizje z wrogami
   enemyManager.draw();
 
   player.update();

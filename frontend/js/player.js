@@ -10,6 +10,53 @@ export class Player {
     this.velocityY = 0;
     this.gravity = 0.5;
     this.isJumping = false;
+
+    this.health = 3;
+    this.exp = 0;
+    this.level = 1;
+
+    this.updateHUD();
+  }
+
+  updateHUD() {
+    document.getElementById("hp").textContent = this.health;
+    document.getElementById("exp").textContent = this.exp.toFixed(2) + "%";
+    document.getElementById("level").textContent = this.level;
+  }
+
+  addExp(amount) {
+    this.exp += amount;
+    if (this.exp >= 100) {
+      this.levelUp();
+    }
+    this.updateHUD();
+  }
+
+  levelUp() {
+    this.level += 1;
+    this.exp = 0;
+    console.log(`Level UP! Teraz masz poziom ${this.level}`);
+    this.updateHUD();
+  }
+
+  loseHealth() {
+    this.health -= 1;
+    console.log(`Utrata życia! HP: ${this.health}`);
+    if (this.health <= 0) {
+      console.log("Game Over!");
+      this.health = 3;
+    }
+    this.updateHUD();
+  }
+
+  update() {
+    this.y += this.velocityY;
+    this.velocityY += this.gravity;
+
+    if (this.y >= this.canvas.height - 80) {
+      this.y = this.canvas.height - 80;
+      this.isJumping = false;
+    }
   }
 
   draw() {
@@ -36,14 +83,22 @@ export class Player {
     }
   }
 
-  update() {
-    this.y += this.velocityY;
-    this.velocityY += this.gravity;
+  // ✅ Dodajemy sprawdzanie kolizji bocznej
+  checkSideCollision(enemy) {
+    return (
+      this.x + this.width > enemy.x && // Prawa strona gracza dotyka wroga
+      this.x < enemy.x + enemy.width && // Lewa strona gracza dotyka wroga
+      this.y + this.height > enemy.y + 10 // Gracz nie dotyka górnej części
+    );
+  }
 
-    // Zatrzymanie spadania na ziemi
-    if (this.y >= this.canvas.height - 80) {
-      this.y = this.canvas.height - 80;
-      this.isJumping = false;
-    }
+  // ✅ Dodajemy sprawdzanie kolizji górnej (gracz skacze na wroga)
+  checkTopCollision(enemy) {
+    return (
+      this.x + this.width > enemy.x &&
+      this.x < enemy.x + enemy.width &&
+      this.y + this.height > enemy.y - 5 &&
+      this.y + this.height < enemy.y + enemy.height / 2
+    );
   }
 }
