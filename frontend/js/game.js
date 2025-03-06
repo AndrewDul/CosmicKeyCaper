@@ -56,8 +56,6 @@ function spawnEnemy() {
   }, Math.random() * 3000 + 2000); // 🔥 Losowy czas (2-5 sekund)
 }
 
-spawnEnemy(); // 🔥 Rozpoczęcie losowego respawnu
-
 function spawnCoin() {
   setTimeout(() => {
     let groundLevel = canvas.height - 180; // 🔥 Poziom podłoża
@@ -79,6 +77,7 @@ function spawnKey() {
   }, player.keys * 30000);
 }
 
+spawnEnemy(); // 🔥 Rozpoczęcie losowego respawnu
 spawnCoin();
 spawnKey();
 

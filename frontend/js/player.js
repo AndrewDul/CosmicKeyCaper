@@ -18,7 +18,8 @@ export class Player {
     this.exp = 0;
     this.level = 1;
     this.coins = 0;
-    this.keys = 0; // 🔑 Klucze do przejścia poziomu
+    this.keys = {}; // 📌 Klawisze sterowania muszą być obiektem!
+    this.collectedKeys = 0;
 
     this.walkFrames = [];
     this.jumpFrames = [];
@@ -29,7 +30,6 @@ export class Player {
     this.lasers = []; // 🔥 Lista strzałów gracza
     this.shootCooldown = false; // 🔥 Ograniczenie tempa strzelania
 
-    this.keys = {};
     // 🔥 Załaduj dźwięki
     this.levelUpSound = new Audio("/frontend/asset/sounds/blessing2.ogg");
     this.shootSound = new Audio("/frontend/asset/sounds/laser.wav");
@@ -59,8 +59,15 @@ export class Player {
   }
 
   setupKeyboardListeners() {
+    // 🛠️ Upewniamy się, że `this.keys` to obiekt
+    if (typeof this.keys !== "object" || this.keys === null) {
+      console.warn("⚠️ `this.keys` nie był obiektem, resetowanie...");
+      this.keys = {}; // 🔥 Resetowanie do poprawnej wartości
+    }
+
     window.addEventListener("keydown", (e) => {
-      this.keys[e.key] = true;
+      this.keys[e.key] = true; // 🔥 Teraz działa poprawnie
+
       if (e.key === "ArrowLeft") this.facingLeft = true;
       if (e.key === "ArrowRight") this.facingLeft = false;
       if (e.key === " " && !this.isJumping) this.jump();
@@ -68,7 +75,7 @@ export class Player {
     });
 
     window.addEventListener("keyup", (e) => {
-      this.keys[e.key] = false;
+      this.keys[e.key] = false; // 🔥 Teraz działa poprawnie
     });
 
     this.canvas.addEventListener("click", () => this.shoot());
@@ -320,16 +327,39 @@ export class Player {
   }
 
   collectKey(key) {
-    this.keys++;
-    console.log(`🔑 Zebrano klucz! Klucze: ${this.keys}/3`);
-    key.markForDeletion = true; // 🔥 Klucz zostaje usunięty
+    // 📌 Zabezpieczenie przed błędnymi wartościami liczby kluczy
+    if (typeof this.collectedKeys !== "number" || isNaN(this.collectedKeys)) {
+      console.warn("⚠️ Nieprawidłowa wartość kluczy, resetowanie...");
+      this.collectedKeys = 0;
+    }
+
+    // 🛠️ Sprawdzenie poprawności obiektu klucza
+    if (!key || typeof key !== "object") {
+      console.error("❌ Błąd: Próba zebrania nieistniejącego klucza!");
+      return;
+    }
+
+    // 🎵 Odtwarzanie dźwięku zebrania klucza
+    const keySound = new Audio("/frontend/asset/sounds/key.wav");
+    keySound.volume = 0.3;
+    keySound
+      .play()
+      .catch((error) => console.error("Błąd dźwięku klucza:", error));
+
+    // ✅ Zwiększenie liczby kluczy
+    this.collectedKeys++;
+    console.log(`🔑 Zebrano klucz! Klucze: ${this.collectedKeys}/3`);
+
+    // 🔥 Oznaczenie klucza do usunięcia
+    key.markForDeletion = true;
     this.updateHUD();
 
-    if (this.keys >= 3) {
+    // 🎯 Sprawdzenie, czy zebrałeś wszystkie klucze
+    if (this.collectedKeys >= 3) {
       console.log(
         "🎉 Wszystkie klucze zebrane! Przechodzisz do następnego poziomu!"
       );
-      // Dodaj logikę przejścia na nowy poziom
+      this.advanceToNextLevel();
     }
   }
 
@@ -340,15 +370,16 @@ export class Player {
     const coinsEl = document.getElementById("coins");
     const keysEl = document.getElementById("keys");
 
-    if (hpEl) hpEl.textContent = `${this.health.toFixed(2)}%`;
-    if (expEl) expEl.textContent = `${this.exp.toFixed(2)}%`;
-    if (levelEl) levelEl.textContent = this.level;
-    if (coinsEl) coinsEl.textContent = this.coins;
-    if (keysEl) keysEl.textContent = `${this.keys}/3`;
-
     if (!hpEl || !expEl || !levelEl || !coinsEl || !keysEl) {
-      console.error("HUD elements not found in the DOM!");
+      console.error("❌ HUD elements not found in the DOM!");
+      return; // 🔥 Zatrzymuje funkcję, jeśli któryś element nie istnieje
     }
+
+    hpEl.textContent = `${this.health.toFixed(2)}%`;
+    expEl.textContent = `${this.exp.toFixed(2)}%`;
+    levelEl.textContent = this.level;
+    coinsEl.textContent = this.coins;
+    keysEl.textContent = `${this.collectedKeys}/3`;
   }
 
   checkSideCollision(enemy) {
