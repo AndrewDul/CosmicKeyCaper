@@ -17,6 +17,8 @@ export class Player {
     this.health = 100;
     this.exp = 0;
     this.level = 1;
+    this.coins = 0;
+    this.keys = 0; // 🔑 Klucze do przejścia poziomu
 
     this.walkFrames = [];
     this.jumpFrames = [];
@@ -77,16 +79,20 @@ export class Player {
     this.shootCooldown = true;
     setTimeout(() => (this.shootCooldown = false), 500);
 
-    const target = this.findNearestEnemy();
-    if (!target) return;
-
-    const dx = target.x - this.x;
-    const dy = target.y - this.y;
-    const magnitude = Math.sqrt(dx * dx + dy * dy);
+    let velocityX = 0,
+      velocityY = 0;
     const speed = 6;
+    const target = this.findNearestEnemy();
 
-    const velocityX = (dx / magnitude) * speed;
-    const velocityY = (dy / magnitude) * speed;
+    if (target) {
+      const dx = target.x - this.x;
+      const dy = target.y - this.y;
+      const magnitude = Math.sqrt(dx * dx + dy * dy) || 1; // Zapobieganie dzieleniu przez 0
+      velocityX = (dx / magnitude) * speed;
+      velocityY = (dy / magnitude) * speed;
+    } else {
+      velocityX = this.facingLeft ? -speed : speed;
+    }
 
     this.lasers.push({
       x: this.x + this.width / 2,
@@ -96,9 +102,16 @@ export class Player {
       velocityX,
       velocityY,
     });
-    // 🔥 Odtwórz dźwięk strzału
-    this.shootSound.currentTime = 0;
-    this.shootSound.play();
+
+    // 🔊 Przyciszony dźwięk strzału (10% głośności)
+    if (this.shootSound) {
+      const newSound = this.shootSound.cloneNode();
+      newSound.volume = 0.1; // 🔊 Ustawienie głośności na 10%
+      newSound.play().catch((error) => {
+        console.warn("Dźwięk strzału został zablokowany przez przeglądarkę.");
+      });
+    }
+
     // 🔥 Uruchom animację ataku
     this.isAttacking = true;
     this.currentFrame = 0;
@@ -265,8 +278,9 @@ export class Player {
 
       frame++;
       if (frame >= this.attackFrames.length) {
+        frame = 0; // ✅ Reset klatek, aby animacja działała płynnie
+        this.isAttacking = false;
         clearInterval(interval);
-        this.isAttacking = false; // 🔥 Po zakończeniu animacji wracamy do normalnej
       }
     }, 50);
   }
@@ -291,24 +305,48 @@ export class Player {
 
   loseHealth(amount) {
     this.health -= amount; // 🔥 Odejmuje procenty HP
-    console.log(`Utrata życia! HP: ${this.health.toFixed(2)}%`);
+    console.log(`Utrata życia! HP: ${this.health.toFixed(2)}`);
     if (this.health <= 0) {
       console.log("Game Over!");
       this.health = 100; // 🔥 Restart HP
     }
     this.updateHUD();
   }
+  collectCoin(coin) {
+    this.coins++;
+    console.log(`💰 Zebrano monetę! Liczba monet: ${this.coins}`);
+    coin.markForDeletion = true; // 🔥 Moneta zostaje usunięta
+    this.updateHUD();
+  }
+
+  collectKey(key) {
+    this.keys++;
+    console.log(`🔑 Zebrano klucz! Klucze: ${this.keys}/3`);
+    key.markForDeletion = true; // 🔥 Klucz zostaje usunięty
+    this.updateHUD();
+
+    if (this.keys >= 3) {
+      console.log(
+        "🎉 Wszystkie klucze zebrane! Przechodzisz do następnego poziomu!"
+      );
+      // Dodaj logikę przejścia na nowy poziom
+    }
+  }
 
   updateHUD() {
     const hpEl = document.getElementById("hp");
     const expEl = document.getElementById("exp");
     const levelEl = document.getElementById("level");
+    const coinsEl = document.getElementById("coins");
+    const keysEl = document.getElementById("keys");
 
-    if (hpEl && expEl && levelEl) {
-      hpEl.textContent = this.health.toFixed(2) + "%";
-      expEl.textContent = this.exp.toFixed(2) + "%";
-      levelEl.textContent = this.level;
-    } else {
+    if (hpEl) hpEl.textContent = `${this.health.toFixed(2)}%`;
+    if (expEl) expEl.textContent = `${this.exp.toFixed(2)}%`;
+    if (levelEl) levelEl.textContent = this.level;
+    if (coinsEl) coinsEl.textContent = this.coins;
+    if (keysEl) keysEl.textContent = `${this.keys}/3`;
+
+    if (!hpEl || !expEl || !levelEl || !coinsEl || !keysEl) {
       console.error("HUD elements not found in the DOM!");
     }
   }

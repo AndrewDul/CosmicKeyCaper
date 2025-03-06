@@ -1,28 +1,46 @@
+/* Resetowanie domyślnych stylów */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Stylizacja kanwy (gry) */
+#gameCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  background-color: black; /* Możesz zmienić na inną teksturę */
+}
 #hud {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  background: rgba(0, 0, 0, 0.7);
-  padding: 15px;
-  border-radius: 10px;
+  top: 10px; /* Lekko obniżone */
+  left: 50%;
+  transform: translateX(-50%); /* Wyśrodkowanie */
+  display: flex;
+  gap: 20px; /* Rozstawienie elementów */
+  background: rgba(0, 0, 0, 0.6); /* Półprzezroczyste tło */
+  padding: 10px 30px;
+  border-radius: 15px;
+  align-items: center;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
   color: white;
-  font-family: Arial, sans-serif;
-  font-size: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  width: 150px;
-}
-
-.stat {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-}
-
-.stat span {
   font-weight: bold;
-  color: yellow;
+}
+
+.hud-icon {
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(2px 2px 5px rgba(255, 255, 255, 0.6));
 }

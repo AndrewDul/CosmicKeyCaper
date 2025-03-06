@@ -12,10 +12,29 @@
 
     <!-- HUD -->
     <div id="hud">
-      <div class="stat">❤️ HP: <span id="hp">3</span></div>
-      <div class="stat">⭐ EXP: <span id="exp">0.00%</span></div>
-      <div class="stat">🔥 Level: <span id="level">1</span></div>
+      <div class="hud-item">
+        <img src="/frontend/asset/images/lvl/lvl.png" class="hud-icon" />
+        <span id="level">1</span>
+      </div>
+      <div class="hud-item">
+        <img src="/frontend/asset/images/exp/exp.png" class="hud-icon" />
+        <span id="exp">0</span>
+      </div>
+      <div class="hud-item">
+        <img src="/frontend/asset/images/Coins/1.png" class="hud-icon" />
+        <span id="coins">0</span>
+      </div>
+      <div class="hud-item">
+        <img src="/frontend/asset/images/key/key.png" class="hud-icon" />
+        <span id="keys">0/3</span>
+      </div>
+      <div class="hud-item">
+        <img src="/frontend/asset/images/hp/hp.png" class="hud-icon" />
+        <span id="hp">100</span>
+      </div>
+      <button id="mute-button" class="hud-mute"></button>
     </div>
+
     <script type="module" src="./frontend/js/game.js"></script>
   </body>
 </html>
