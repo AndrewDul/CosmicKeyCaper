@@ -3,103 +3,64 @@ export class Level1 {
     this.canvas = canvas;
     this.ctx = ctx;
     this.backgroundX = 0;
-    this.speed = 2; // Szybkość przesuwania tła
-    this.obstacles = [];
-    this.enemies = [];
-    this.stars = this.generateStars(100); // 100 losowych gwiazd
+    this.speed = 2;
+    this.enemies = []; // 🔥 Lista przeciwników
+    this.stars = []; // 🔥 Gwiazdy w tle
+    this.numStars = 100; // Ilość gwiazd
 
-    this.spawnEnemy();
+    this.generateStars();
   }
 
-  // Generowanie losowych gwiazd na tle
-  generateStars(count) {
-    const stars = [];
-    for (let i = 0; i < count; i++) {
-      stars.push({
+  generateStars() {
+    for (let i = 0; i < this.numStars; i++) {
+      this.stars.push({
         x: Math.random() * this.canvas.width,
-        y: Math.random() * this.canvas.height - 100, // Nie rysujemy gwiazd na podłożu
-        size: Math.random() * 3 + 1, // Rozmiar gwiazdy 1-4 px
-        speed: Math.random() * 1.5 + 0.5, // Różna prędkość ruchu
+        y: Math.random() * this.canvas.height,
+        size: Math.random() * 2 + 1,
+        speed: Math.random() * 2 + 1,
       });
     }
-    return stars;
-  }
-
-  // Rysowanie tła z gwiazdami
-  drawBackground() {
-    // 🌌 Czarny kosmos
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // ⭐ Rysowanie gwiazd
-    this.ctx.fillStyle = "white";
-    this.stars.forEach((star) => {
-      this.ctx.beginPath();
-      this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-      this.ctx.fill();
-    });
-
-    // 🌑 Rysowanie powierzchni planety (szare podłoże)
-    this.ctx.fillStyle = "#555"; // Szary kolor
-    this.ctx.fillRect(0, this.canvas.height - 50, this.canvas.width, 50);
-  }
-
-  // Ruch gwiazd (przesuwają się w prawo)
-  updateStars() {
-    this.stars.forEach((star) => {
-      star.x += star.speed; // Gwiazdy przesuwają się w prawo
-      if (star.x > this.canvas.width) {
-        star.x = 0; // Reset pozycji na lewo
-        star.y = Math.random() * (this.canvas.height - 100); // Nowa wysokość
-      }
-    });
-  }
-
-  drawObstacles() {
-    this.ctx.fillStyle = "red";
-    this.obstacles.forEach((obs) => {
-      this.ctx.fillRect(obs.x - this.backgroundX, obs.y, obs.width, obs.height);
-    });
-  }
-
-  drawEnemies() {
-    this.ctx.fillStyle = "purple";
-    this.enemies.forEach((enemy) => {
-      this.ctx.fillRect(
-        enemy.x - this.backgroundX,
-        enemy.y,
-        enemy.width,
-        enemy.height
-      );
-    });
   }
 
   update() {
     this.backgroundX += this.speed;
-    this.updateStars(); // Aktualizacja ruchu gwiazd
 
-    this.enemies.forEach((enemy) => {
-      enemy.x -= 1.5; // Powolne przesuwanie wrogów w lewo
+    // 🔥 Aktualizacja gwiazd (ruch w lewo)
+    this.stars.forEach((star) => {
+      star.x -= star.speed;
+      if (star.x < 0) {
+        star.x = this.canvas.width;
+        star.y = Math.random() * this.canvas.height;
+      }
     });
 
-    // Usunięcie wrogów poza ekranem
-    this.enemies = this.enemies.filter((enemy) => enemy.x > -50);
+    // 🔥 Aktualizacja przeciwników
+    this.enemies.forEach((enemy) => enemy.update());
   }
 
-  spawnEnemy() {
-    setInterval(() => {
-      this.enemies.push({
-        x: this.canvas.width + Math.random() * 200,
-        y: this.canvas.height - 80,
-        width: 40,
-        height: 40,
-      });
-    }, 3000); // Nowy wróg co 3 sekundy
+  drawBackground() {
+    // 🔥 Czarne tło imitujące kosmos
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // 🔥 Gwiazdy w tle
+    this.ctx.fillStyle = "white";
+    this.stars.forEach((star) => {
+      this.ctx.fillRect(star.x, star.y, star.size, star.size);
+    });
+  }
+
+  drawGround() {
+    // 🔥 Szare podłoże (imitacja powierzchni planety)
+    this.ctx.fillStyle = "gray";
+    this.ctx.fillRect(0, this.canvas.height - 50, this.canvas.width, 50);
   }
 
   draw() {
-    this.drawBackground(); // ✅ Rysowanie tła z gwiazdami
-    this.drawObstacles();
-    this.drawEnemies();
+    this.drawBackground();
+    this.drawGround();
+
+    // 🔥 Rysowanie przeciwników
+    this.enemies.forEach((enemy) => enemy.draw());
   }
 }

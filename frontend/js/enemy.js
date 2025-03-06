@@ -1,58 +1,184 @@
-export class EnemyManager {
-  constructor(canvas, ctx, level) {
+export class Enemy {
+  constructor(canvas, ctx, player) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.level = level;
-    this.enemies = [];
-    this.spawnEnemy();
+    this.player = player;
+    this.x = Math.random() * (canvas.width - 200) + 100;
+    this.y = Math.random() * (canvas.height / 2);
+    this.width = 130;
+    this.height = 130;
+    this.speed = 1.5;
+    this.direction = Math.random() < 0.5 ? 1 : -1; // 🔥 Losowy start
+
+    this.lasers = [];
+    this.shootInterval = 2000;
+    this.isAttacking = false;
+
+    this.isDying = false;
+    this.deathFrames = [];
+    this.deathFrameIndex = 0;
+    this.loadDeathImages();
+
+    this.walkFrames = [];
+    this.attackFrames = [];
+    this.currentFrame = 0;
+    this.frameCount = 0;
+
+    this.loadImages();
+    this.loadAttackImages();
+    this.startShooting();
   }
 
-  // Tworzenie nowych wrogów co 3 sekundy
-  spawnEnemy() {
+  loadImages() {
+    for (let i = 0; i <= 11; i++) {
+      const img = new Image();
+      img.src = `/frontend/asset/images/enemy/walk/${i}.png`;
+      img.onload = () => console.log(`Załadowano: ${img.src}`);
+      img.onerror = () => console.error(`❌ Błąd ładowania: ${img.src}`);
+      this.walkFrames.push(img);
+    }
+  }
+
+  loadAttackImages() {
+    for (let i = 1; i <= 6; i++) {
+      const img = new Image();
+      img.src = `/frontend/asset/images/enemy/attack/${i}.png`;
+      img.onload = () => console.log(`Załadowano atak: ${img.src}`);
+      img.onerror = () => console.error(`❌ Błąd ładowania ataku: ${img.src}`);
+      this.attackFrames.push(img);
+    }
+  }
+
+  loadDeathImages() {
+    for (let i = 1; i <= 15; i++) {
+      const img = new Image();
+      img.src = `/frontend/asset/images/enemy/dying/${i}.png`;
+      img.onload = () => console.log(`Załadowano śmierć: ${img.src}`);
+      img.onerror = () => console.warn(`❌ Błąd ładowania śmierci: ${img.src}`);
+      this.deathFrames.push(img);
+    }
+  }
+
+  startShooting() {
     setInterval(() => {
-      this.enemies.push({
-        x: this.canvas.width + Math.random() * 200, // Wrogowie pojawiają się poza ekranem
-        y: this.canvas.height - 80,
-        width: 40,
-        height: 40,
-        speed: 2 + Math.random() * 2, // Losowa prędkość wrogów
-      });
-    }, 3000);
+      if (!this.isDying) this.shoot();
+    }, this.shootInterval);
   }
 
-  update(player) {
-    this.enemies.forEach((enemy, index) => {
-      enemy.x -= enemy.speed; // Przesuwanie wrogów w lewo
+  shoot() {
+    if (this.isAttacking) return; // 🔥 Nie można strzelać w trakcie animacji ataku
+    this.isAttacking = true;
+    this.currentFrame = 0;
 
-      // Sprawdzanie kolizji bocznej (utrata HP)
-      if (typeof player.checkSideCollision === "function") {
-        if (player.checkSideCollision(enemy)) {
-          player.loseHealth();
-          this.enemies.splice(index, 1); // Usunięcie wroga po kolizji
-        }
-      } else {
-        console.error("Błąd: player.checkSideCollision() nie istnieje!");
-      }
+    setTimeout(() => {
+      this.isAttacking = false; // 🔥 Reset ataku po animacji
+    }, 500); // 🔥 Czas trwania animacji ataku
 
-      // Sprawdzanie kolizji górnej (gracz skacze na wroga)
-      if (typeof player.checkTopCollision === "function") {
-        if (player.checkTopCollision(enemy)) {
-          player.addExp(1.25);
-          this.enemies.splice(index, 1); // Usunięcie wroga po zdobyciu EXP
-        }
-      } else {
-        console.error("Błąd: player.checkTopCollision() nie istnieje!");
-      }
+    const dx = this.player.x - this.x;
+    const dy = this.player.y - this.y;
+    const magnitude = Math.sqrt(dx * dx + dy * dy);
+    const speed = 5;
+
+    if (magnitude === 0) return;
+
+    const velocityX = (dx / magnitude) * speed;
+    const velocityY = (dy / magnitude) * speed;
+
+    this.lasers.push({
+      x: this.x + this.width / 2,
+      y: this.y + this.height / 2,
+      width: 12,
+      height: 30,
+      velocityX,
+      velocityY,
     });
+  }
 
-    // Usunięcie wrogów, którzy wyszli poza ekran
-    this.enemies = this.enemies.filter((enemy) => enemy.x > -50);
+  update() {
+    if (this.isDying) {
+      this.frameCount++;
+      if (this.frameCount % 8 === 0) {
+        this.deathFrameIndex++;
+        if (this.deathFrameIndex >= this.deathFrames.length) {
+          this.markForDeletion = true; // 🔥 Wróg znika po animacji
+        }
+      }
+      return;
+    }
+
+    // 🔥 Wrogowie podążają za graczem
+    const dx = this.player.x - this.x;
+    const dy = this.player.y - this.y;
+    const magnitude = Math.sqrt(dx * dx + dy * dy);
+
+    if (magnitude > 50) {
+      // 🔥 Minimalna odległość, żeby wróg nie był na graczu
+      this.x += (dx / magnitude) * this.speed;
+      this.y += (dy / magnitude) * this.speed;
+    }
+
+    this.animate();
+  }
+
+  animate() {
+    this.frameCount++;
+    if (this.isAttacking) {
+      if (this.frameCount % 7 === 0) {
+        this.currentFrame = (this.currentFrame + 1) % this.attackFrames.length;
+      }
+    } else {
+      if (this.frameCount % 7 === 0) {
+        this.currentFrame = (this.currentFrame + 1) % this.walkFrames.length;
+      }
+    }
   }
 
   draw() {
-    this.ctx.fillStyle = "purple";
-    this.enemies.forEach((enemy) => {
-      this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    let frame;
+
+    if (this.isDying) {
+      frame =
+        this.deathFrames[
+          Math.min(this.deathFrameIndex, this.deathFrames.length - 1)
+        ];
+    } else if (this.isAttacking) {
+      frame = this.attackFrames[this.currentFrame];
+    } else {
+      frame = this.walkFrames[this.currentFrame];
+    }
+
+    if (!frame || !frame.complete || frame.naturalWidth === 0) {
+      console.warn("❌ Obraz nie został wczytany lub jest niepoprawny.");
+      return;
+    }
+
+    this.ctx.save();
+    this.ctx.translate(this.x + this.width / 2, this.y);
+    this.ctx.scale(this.x > this.player.x ? -1 : 1, 1);
+    this.ctx.drawImage(frame, -this.width / 2, 0, this.width, this.height);
+    this.ctx.restore();
+
+    this.ctx.fillStyle = "yellow";
+    this.lasers.forEach((laser) => {
+      laser.x += laser.velocityX;
+      laser.y += laser.velocityY;
+      this.ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
     });
+  }
+
+  checkCollision(player) {
+    return (
+      this.x + this.width > player.x &&
+      this.x < player.x + player.width &&
+      this.y + this.height > player.y &&
+      this.y < player.y + player.height
+    );
+  }
+
+  removeEnemy() {
+    const index = this.player.level1.enemies.indexOf(this);
+    if (index > -1) {
+      this.player.level1.enemies.splice(index, 1);
+    }
   }
 }
