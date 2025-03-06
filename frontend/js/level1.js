@@ -1,13 +1,14 @@
-class Level1 {
+export class Level1 {
   constructor(canvas, ctx) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.backgroundX = 0;
     this.speed = 2; // Szybkość przesuwania tła
+    this.obstacles = [];
   }
 
   drawBackground() {
-    this.ctx.fillStyle = "gray";
+    this.ctx.fillStyle = "darkblue";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Rysowanie "ziemi"
@@ -17,8 +18,9 @@ class Level1 {
 
   drawObstacles() {
     this.ctx.fillStyle = "red";
-    this.ctx.fillRect(300 - this.backgroundX, this.canvas.height - 80, 50, 30);
-    this.ctx.fillRect(600 - this.backgroundX, this.canvas.height - 80, 50, 30);
+    this.obstacles.forEach((obs) => {
+      this.ctx.fillRect(obs.x - this.backgroundX, obs.y, obs.width, obs.height);
+    });
   }
 
   update() {

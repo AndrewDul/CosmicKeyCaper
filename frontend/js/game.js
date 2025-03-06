@@ -1,3 +1,7 @@
+import { Level1 } from "./level1.js";
+import { Player } from "./player.js";
+import { EnemyManager } from "./enemy.js";
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -5,36 +9,14 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const level1 = new Level1(canvas, ctx);
-
-class Player {
-  constructor() {
-    this.x = 50;
-    this.y = canvas.height - 80;
-    this.width = 30;
-    this.height = 30;
-    this.speed = 5;
-  }
-
-  draw() {
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-  }
-
-  moveLeft() {
-    this.x -= this.speed;
-  }
-
-  moveRight() {
-    this.x += this.speed;
-  }
-}
-
-const player = new Player();
+const player = new Player(canvas, ctx);
+const enemyManager = new EnemyManager(canvas, ctx, level1);
 
 // Obsługa klawiszy
 window.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") player.moveLeft();
   if (e.key === "ArrowRight") player.moveRight();
+  if (e.key === " ") player.jump(); // Skok po spacji
 });
 
 function gameLoop() {
@@ -42,6 +24,11 @@ function gameLoop() {
 
   level1.update();
   level1.draw();
+
+  enemyManager.update();
+  enemyManager.draw();
+
+  player.update();
   player.draw();
 
   requestAnimationFrame(gameLoop);
