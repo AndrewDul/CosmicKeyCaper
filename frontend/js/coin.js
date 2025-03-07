@@ -15,14 +15,14 @@ export class Coin {
     this.loadImages();
 
     // 🎵 Dźwięk zbierania monety
-    this.coinSound = new Audio("/frontend/asset/sounds/coin.wav");
+    this.coinSound = new Audio("frontend/asset/sounds/coin.wav");
     this.coinSound.volume = 0.2; // 🔊 Przyciszony dźwięk
   }
 
   loadImages() {
     for (let i = 1; i <= 8; i++) {
       const img = new Image();
-      img.src = `/frontend/asset/images/Coins/${i}.png`; // 🔥 Poprawiona ścieżka
+      img.src = `frontend/asset/images/Coins/${i}.png`; // 🔥 Poprawiona ścieżka
       img.onerror = () => console.error(`Nie znaleziono obrazka: ${img.src}`);
       this.frames.push(img);
     }

@@ -11,7 +11,7 @@ export class Key {
     this.y = canvas.height - 180; // 🔥 Klucze zawsze na ziemi, tak jak monety
 
     this.image = new Image();
-    this.image.src = `/frontend/asset/images/key/key.png`;
+    this.image.src = `frontend/asset/images/key/key.png`;
     this.image.onerror = () =>
       console.error(`❌ Nie znaleziono obrazka: ${this.image.src}`);
   }

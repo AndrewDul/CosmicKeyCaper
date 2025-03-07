@@ -32,7 +32,7 @@ export class Enemy {
   loadImages() {
     for (let i = 0; i <= 11; i++) {
       const img = new Image();
-      img.src = `/frontend/asset/images/enemy/walk/${i}.png`;
+      img.src = `frontend/asset/images/enemy/walk/${i}.png`;
       img.onload = () => console.log(`Załadowano: ${img.src}`);
       img.onerror = () => console.error(`❌ Błąd ładowania: ${img.src}`);
       this.walkFrames.push(img);
@@ -42,7 +42,7 @@ export class Enemy {
   loadAttackImages() {
     for (let i = 0; i <= 11; i++) {
       const img = new Image();
-      img.src = `/frontend/asset/images/enemy/attack/${i}.png`;
+      img.src = `frontend/asset/images/enemy/attack/${i}.png`;
       img.onload = () => console.log(`✅ Załadowano atak: ${img.src}`);
       img.onerror = () => console.error(`❌ Błąd ładowania: ${img.src}`);
       this.attackFrames.push(img);
@@ -52,7 +52,7 @@ export class Enemy {
   loadDeathImages() {
     for (let i = 1; i <= 15; i++) {
       const img = new Image();
-      img.src = `/frontend/asset/images/enemy/dying/${i}.png`;
+      img.src = `frontend/asset/images/enemy/dying/${i}.png`;
       img.onload = () => console.log(`Załadowano śmierć: ${img.src}`);
       img.onerror = () => console.warn(`❌ Błąd ładowania śmierci: ${img.src}`);
       this.deathFrames.push(img);

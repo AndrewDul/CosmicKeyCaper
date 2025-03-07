@@ -31,8 +31,8 @@ export class Player {
     this.shootCooldown = false; // 🔥 Ograniczenie tempa strzelania
 
     // 🔥 Załaduj dźwięki
-    this.levelUpSound = new Audio("/frontend/asset/sounds/blessing2.ogg");
-    this.shootSound = new Audio("/frontend/asset/sounds/laser.wav");
+    this.levelUpSound = new Audio("frontend/asset/sounds/blessing2.ogg");
+    this.shootSound = new Audio("frontend/asset/sounds/laser.wav");
 
     this.loadImages();
     this.setupKeyboardListeners();
@@ -343,7 +343,7 @@ export class Player {
     }
 
     // 🎵 Odtwarzanie dźwięku zebrania klucza
-    const keySound = new Audio("/frontend/asset/sounds/key.wav");
+    const keySound = new Audio("frontend/asset/sounds/key.wav");
     keySound.volume = 0.3;
     keySound
       .play()

@@ -7,7 +7,7 @@ import { Key } from "./key.js";
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const backgroundMusic = new Audio("/frontend/asset/sounds/Spacearray.ogg");
+const backgroundMusic = new Audio("frontend/asset/sounds/Spacearray.ogg");
 backgroundMusic.onerror = () =>
   console.error("❌ Błąd ładowania pliku dźwiękowego: Spacearray.ogg");
 
@@ -16,7 +16,7 @@ backgroundMusic.volume = 0.2;
 
 const muteButton = document.getElementById("mute-button");
 const muteIcon = document.createElement("img");
-muteIcon.src = "/frontend/asset/images/mute/mute.png";
+muteIcon.src = "frontend/asset/images/mute/mute.png";
 muteIcon.alt = "Mute";
 muteButton.appendChild(muteIcon);
 
