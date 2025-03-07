@@ -39,23 +39,25 @@ export class Player {
   }
 
   loadImages() {
-    for (let i = 1; i <= 6; i++) {
-      const img = new Image();
-      img.src = `/frontend/asset/images/player/walk/${i}.png`;
-      this.walkFrames.push(img);
-    }
+    // 🔥 Definicja typów animacji i liczby klatek
+    const imageTypes = [
+      { name: "walk", frames: 6, target: this.walkFrames },
+      { name: "jump", frames: 4, target: this.jumpFrames },
+      { name: "attack", frames: 8, target: this.attackFrames },
+    ];
 
-    for (let i = 1; i <= 4; i++) {
-      const img = new Image();
-      img.src = `/frontend/asset/images/player/jump/${i}.png`;
-      this.jumpFrames.push(img);
-    }
+    imageTypes.forEach(({ name, frames, target }) => {
+      for (let i = 1; i <= frames; i++) {
+        const img = new Image();
+        img.src = `/frontend/asset/images/player/${name}/${i}.png`;
 
-    for (let i = 1; i <= 4; i++) {
-      const img = new Image();
-      img.src = `/frontend/asset/images/player/attack/${i}.png`;
-      this.attackFrames.push(img);
-    }
+        img.onload = () => console.log(`✅ Załadowano obraz: ${img.src}`);
+        img.onerror = () =>
+          console.error(`❌ Błąd ładowania obrazu: ${img.src}`);
+
+        target.push(img);
+      }
+    });
   }
 
   setupKeyboardListeners() {
@@ -225,7 +227,7 @@ export class Player {
   }
 
   draw() {
-    let frame;
+    let frame = null;
 
     if (this.isAttacking) {
       frame = this.attackFrames[this.currentFrame]; // 🔥 Rysowanie ataku
@@ -235,8 +237,11 @@ export class Player {
       frame = this.walkFrames[this.currentFrame]; // 🔥 Normalny ruch
     }
 
+    // 🔥 Sprawdzenie, czy obraz jest poprawnie załadowany
     if (!frame || !frame.complete || frame.naturalWidth === 0) {
-      console.warn("Obraz nie został jeszcze wczytany lub jest niepoprawny.");
+      console.warn(
+        `❌ Obraz nie został jeszcze wczytany! Frame: ${this.currentFrame}`
+      );
       return;
     }
 
@@ -245,11 +250,6 @@ export class Player {
     this.ctx.scale(this.facingLeft ? -1 : 1, 1);
     this.ctx.drawImage(frame, -this.width / 2, 0, this.width, this.height);
     this.ctx.restore();
-
-    this.ctx.fillStyle = "cyan";
-    this.lasers.forEach((laser) => {
-      this.ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
-    });
   }
 
   animateWalk() {
@@ -268,28 +268,31 @@ export class Player {
 
   animateAttack() {
     if (!this.attackFrames.length) {
-      console.warn("Animacja ataku nie jest wczytana.");
+      console.warn("❌ Animacja ataku nie jest wczytana!");
       return;
     }
 
     let frame = 0;
-    const interval = setInterval(() => {
-      this.currentFrame = frame;
+    this.isAttacking = true; // 🔥 Upewnij się, że atak się rozpoczął
+    this.currentFrame = 0;
 
+    const interval = setInterval(() => {
       if (!this.attackFrames[frame]) {
-        console.warn(`Nie znaleziono klatki animacji ataku: ${frame}`);
+        console.warn(`❌ Nie znaleziono klatki animacji ataku: ${frame}`);
         clearInterval(interval);
         this.isAttacking = false;
         return;
       }
 
+      this.currentFrame = frame;
       frame++;
+
       if (frame >= this.attackFrames.length) {
-        frame = 0; // ✅ Reset klatek, aby animacja działała płynnie
-        this.isAttacking = false;
         clearInterval(interval);
+        this.isAttacking = false;
+        this.currentFrame = 0; // 🔥 Reset animacji do normalnego stanu
       }
-    }, 50);
+    }, 100);
   }
 
   addExp(amount) {

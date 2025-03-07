@@ -247,4 +247,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+setTimeout(() => {
+  console.log("⏳ Opóźnienie startu gry, aby załadować wszystkie obrazy.");
+  gameLoop();
+}, 500); // Poczekaj 500ms, aby zapewnić załadowanie obrazów
