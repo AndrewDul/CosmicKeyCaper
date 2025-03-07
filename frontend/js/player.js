@@ -49,7 +49,7 @@ export class Player {
     imageTypes.forEach(({ name, frames, target }) => {
       for (let i = 1; i <= frames; i++) {
         const img = new Image();
-        img.src = `/frontend/asset/images/player/${name}/${i}.png`;
+        img.src = `frontend/asset/images/player/${name}/${i}.png`;
 
         img.onload = () => console.log(`✅ Załadowano obraz: ${img.src}`);
         img.onerror = () =>
