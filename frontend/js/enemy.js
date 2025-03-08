@@ -8,17 +8,16 @@ export class Enemy {
     this.width = 130;
     this.height = 130;
     this.speed = 1.5;
-    this.direction = Math.random() < 0.5 ? 1 : -1; // 🔥 Losowy start
+    this.direction = Math.random() < 0.5 ? 1 : -1;
 
     this.lasers = [];
     this.shootInterval = 2000;
     this.isAttacking = false;
-
     this.isDying = false;
+    this.markForDeletion = false;
+
     this.deathFrames = [];
     this.deathFrameIndex = 0;
-    this.loadDeathImages();
-
     this.walkFrames = [];
     this.attackFrames = [];
     this.currentFrame = 0;
@@ -26,13 +25,14 @@ export class Enemy {
 
     this.loadImages();
     this.loadAttackImages();
+    this.loadDeathImages();
     this.startShooting();
   }
 
   loadImages() {
     for (let i = 0; i <= 11; i++) {
       const img = new Image();
-      img.src = `/frontend/asset/images/enemy/walk/${i}.png`;
+      img.src = `frontend/asset/images/enemy/walk/${i}.png`;
       img.onload = () => console.log(`Załadowano: ${img.src}`);
       img.onerror = () => console.error(`❌ Błąd ładowania: ${img.src}`);
       this.walkFrames.push(img);
@@ -40,11 +40,11 @@ export class Enemy {
   }
 
   loadAttackImages() {
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 0; i <= 11; i++) {
       const img = new Image();
-      img.src = `/frontend/asset/images/enemy/attack/${i}.png`;
-      img.onload = () => console.log(`Załadowano atak: ${img.src}`);
-      img.onerror = () => console.error(`❌ Błąd ładowania ataku: ${img.src}`);
+      img.src = `frontend/asset/images/enemy/attack/${i}.png`;
+      img.onload = () => console.log(`✅ Załadowano atak: ${img.src}`);
+      img.onerror = () => console.error(`❌ Błąd ładowania: ${img.src}`);
       this.attackFrames.push(img);
     }
   }
@@ -52,7 +52,7 @@ export class Enemy {
   loadDeathImages() {
     for (let i = 1; i <= 15; i++) {
       const img = new Image();
-      img.src = `/frontend/asset/images/enemy/dying/${i}.png`;
+      img.src = `frontend/asset/images/enemy/dying/${i}.png`;
       img.onload = () => console.log(`Załadowano śmierć: ${img.src}`);
       img.onerror = () => console.warn(`❌ Błąd ładowania śmierci: ${img.src}`);
       this.deathFrames.push(img);
@@ -61,18 +61,18 @@ export class Enemy {
 
   startShooting() {
     setInterval(() => {
-      if (!this.isDying) this.shoot();
+      if (!this.isDying && !this.markForDeletion) this.shoot();
     }, this.shootInterval);
   }
 
   shoot() {
-    if (this.isAttacking) return; // 🔥 Nie można strzelać w trakcie animacji ataku
+    if (this.isAttacking) return;
     this.isAttacking = true;
     this.currentFrame = 0;
 
     setTimeout(() => {
-      this.isAttacking = false; // 🔥 Reset ataku po animacji
-    }, 500); // 🔥 Czas trwania animacji ataku
+      this.isAttacking = false;
+    }, 500);
 
     const dx = this.player.x - this.x;
     const dy = this.player.y - this.y;
@@ -100,36 +100,45 @@ export class Enemy {
       if (this.frameCount % 8 === 0) {
         this.deathFrameIndex++;
         if (this.deathFrameIndex >= this.deathFrames.length) {
-          this.markForDeletion = true; // 🔥 Wróg znika po animacji
+          this.markForDeletion = true;
         }
       }
       return;
     }
 
-    // 🔥 Wrogowie podążają za graczem
+    // 🔥 Wróg podąża za graczem
     const dx = this.player.x - this.x;
     const dy = this.player.y - this.y;
     const magnitude = Math.sqrt(dx * dx + dy * dy);
 
     if (magnitude > 50) {
-      // 🔥 Minimalna odległość, żeby wróg nie był na graczu
       this.x += (dx / magnitude) * this.speed;
       this.y += (dy / magnitude) * this.speed;
     }
+
+    // 🔥 Aktualizacja strzałów
+    this.lasers.forEach((laser, index) => {
+      laser.x += laser.velocityX;
+      laser.y += laser.velocityY;
+
+      if (
+        laser.x < 0 ||
+        laser.x > this.canvas.width ||
+        laser.y < 0 ||
+        laser.y > this.canvas.height
+      ) {
+        this.lasers.splice(index, 1);
+      }
+    });
 
     this.animate();
   }
 
   animate() {
-    this.frameCount++;
     if (this.isAttacking) {
-      if (this.frameCount % 7 === 0) {
-        this.currentFrame = (this.currentFrame + 1) % this.attackFrames.length;
-      }
-    } else {
-      if (this.frameCount % 7 === 0) {
-        this.currentFrame = (this.currentFrame + 1) % this.walkFrames.length;
-      }
+      this.currentFrame = (this.currentFrame + 1) % this.attackFrames.length;
+    } else if (!this.isDying) {
+      this.currentFrame = (this.currentFrame + 1) % this.walkFrames.length;
     }
   }
 
@@ -160,10 +169,14 @@ export class Enemy {
 
     this.ctx.fillStyle = "yellow";
     this.lasers.forEach((laser) => {
-      laser.x += laser.velocityX;
-      laser.y += laser.velocityY;
       this.ctx.fillRect(laser.x, laser.y, laser.width, laser.height);
     });
+  }
+
+  startDying() {
+    this.isDying = true;
+    this.deathFrameIndex = 0;
+    this.frameCount = 0;
   }
 
   checkCollision(player) {

@@ -1,3 +1,6 @@
+import { Coin } from "./coin.js";
+import { Key } from "./key.js";
+
 export class Level1 {
   constructor(canvas, ctx) {
     this.canvas = canvas;
@@ -7,8 +10,39 @@ export class Level1 {
     this.enemies = []; // 🔥 Lista przeciwników
     this.stars = []; // 🔥 Gwiazdy w tle
     this.numStars = 100; // Ilość gwiazd
+    this.coins = [];
+    this.keys = [];
+    this.spawnCoins();
+    this.spawnKeys();
 
     this.generateStars();
+  }
+  spawnCoins() {
+    setInterval(() => {
+      let x = Math.random() * (this.canvas.width - 100) + 50;
+      let y = Math.random() * (this.canvas.height - 150) + 50;
+      this.coins.push(new Coin(this.canvas, this.ctx, x, y));
+    }, 5000); // 🎲 Nowa moneta co 5 sekund
+  }
+
+  spawnKeys() {
+    setTimeout(() => {
+      let x = Math.random() * (this.canvas.width - 100) + 50;
+      let y = Math.random() * (this.canvas.height - 150) + 50; // 🔥 Losowa wysokość jak w coinach
+      this.keys.push(new Key(this.canvas, this.ctx, x, y));
+    }, 10000); // 30s
+
+    setTimeout(() => {
+      let x = Math.random() * (this.canvas.width - 100) + 50;
+      let y = Math.random() * (this.canvas.height - 150) + 50;
+      this.keys.push(new Key(this.canvas, this.ctx, x, y));
+    }, 60000); // 1 min
+
+    setTimeout(() => {
+      let x = Math.random() * (this.canvas.width - 100) + 50;
+      let y = Math.random() * (this.canvas.height - 150) + 50;
+      this.keys.push(new Key(this.canvas, this.ctx, x, y));
+    }, 90000); // 1:30 min
   }
 
   generateStars() {
@@ -36,6 +70,7 @@ export class Level1 {
 
     // 🔥 Aktualizacja przeciwników
     this.enemies.forEach((enemy) => enemy.update());
+    this.coins.forEach((coin) => coin.update());
   }
 
   drawBackground() {
@@ -61,6 +96,8 @@ export class Level1 {
     this.drawGround();
 
     // 🔥 Rysowanie przeciwników
+    this.coins.forEach((coin) => coin.draw());
+    this.keys.forEach((key) => key.draw());
     this.enemies.forEach((enemy) => enemy.draw());
   }
 }

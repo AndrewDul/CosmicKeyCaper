@@ -1,19 +1,66 @@
-/* Canvas styling */
-canvas {
-  max-width: 100%;
-  height: auto;
-  border: 1px solid white;
-  background: #000;
-  display: block;
-  margin: 0 auto;
+/* Stylizacja HUD */
+#hud {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
-/* Body styling */
-body {
-  margin: 0;
-  background: #111;
+.hud-item {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  margin-right: 15px;
+}
+
+.hud-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.hud-mute {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.hud-mute img {
+  width: 24px;
+  height: 24px;
+  filter: brightness(0.8);
+}
+
+.hud-mute:hover img {
+  filter: brightness(1);
+}
+#hud {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  color: white;
+}
+
+.hud-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hud-icon {
+  width: 32px;
+  height: 32px;
 }
